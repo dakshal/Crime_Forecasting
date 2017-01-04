@@ -108,7 +108,7 @@ for iteration =1:10
     D2 = Accum_par2*(1/size(X,1));
     
    
-       step_size = 0.2;                       %setting step_size    
+       step_size = 0.5;                       %setting step_size    
        
        %Updating parameters
     Parameter1 = Parameter1 - step_size.*D1;
