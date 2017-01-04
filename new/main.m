@@ -18,11 +18,11 @@ dates = unique(dates, 'rows');
 in = dates;
 
 for i = 1:length(dates)
-    out(i) = A(dates(i,2), dates(i,1))/8;
+    out(i) = (A(dates(i,2), dates(i,1))-4)/8;
 end
 
-in(:,1) = in(:,1) / 366;
-in(:,2) = in(:,2) / max(in(:,2));
+in(:,1) = (in(:,1)-366/2) / 366;
+in(:,2) = (in(:,2)-max(in(:,2))/2) / max(in(:,2));
 in = [in out'];
 
 %% Set Prediction Paramters
