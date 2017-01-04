@@ -21,21 +21,19 @@ for i = 1:length(dates)
     out(i) = A(dates(i,2), dates(i,1));
 end
 
-in(:,2) = in(:,2) / 366;
-in(:,5) = in(:,5) / max(in(:,5));
-in = [in out];
-
-
+in(:,1) = in(:,1) / 366;
+in(:,2) = in(:,2) / max(in(:,2));
+in = [in out'];
 
 %% Set Prediction Paramters
 %  prediction_time -> the day ahead of the current day to predict for
 
 prediction_time = 7;
-input_x = [in out];
-out(1:prediction_time, :) = [];
+input_x = in;
+%out(1:prediction_time, :) = [];
 
 %% trainging data
-TrainingDays = 250;
+TrainingDays = 127000;
 
 X = input_x;
 
@@ -58,11 +56,13 @@ array = zeros(10*TrainingDays, 1);
 array_accurate = zeros(10*TrainingDays, 1);
 
 for iteration =1:10
+    iteration
     output_mat = zeros(size(Y,1),1);         %Matrix for storing output
     Accum_par1 =zeros(L2,L1+1);              % Storing accumulated values after each batch is passed
     Accum_par2 = zeros(L3,L2+1);
     
     for i =1:TrainingDays              % 8 samples in training batch
+        i
         Lone = X(i,(1:3))';       % Lone, Ltwo, Lthree layers without bias
         Ltwo = zeros(L2,1) ;
         Lthree = zeros(L3,L3);
@@ -77,8 +77,8 @@ for iteration =1:10
         
         %Backward Propogation
         
-        e3 = output - Y(i) 
-        [e2] = backward_prop(e3,Parameter2,A2)
+        e3 = output - Y(i) ;
+        [e2] = backward_prop(e3,Parameter2,A2);
         
         Accum_par1 = Accum_par1 + e2(2:size(e2, 1))*A1';
         Accum_par2 = Accum_par2 + e3*A2';
@@ -86,6 +86,13 @@ for iteration =1:10
         
         array(iteration*TrainingDays + i) = output;
         array_accurate(iteration*TrainingDays + i) = out(i);
+        
+%         subplot(1,2,1);
+%         plot(array);
+%         drawnow;
+%         subplot(1,2,2);
+%         plot(array_accurate);
+%         drawnow;
         
     end
     
@@ -102,11 +109,12 @@ for iteration =1:10
     Parameter2 = Parameter2 - step_size.*D2;
     
     %Cost Function (cross-entropy)
-    cost(iteration,:) = (-1/size(X,1)*(log(output_mat)'*Y + log(1-output_mat)'*(1-Y)));
+%     cost(iteration,:) = (-1/size(X,1)*(log(output_mat)'*Y + log(1-output_mat)'*(1-Y)));
+
 end
 
 prediction = zeros(size(input_x, 1) - TrainingDays, 1);
-expected = out(TrainingDays+1:size(out), :);
+expected = out(:, TrainingDays+1:size(out, 2));
 
 for i =TrainingDays+1:size(input_x, 1)            % 8 samples in training batch
         Lone = X(i,(1:3))';       % Lone, Ltwo, Lthree layers without bias
@@ -130,7 +138,7 @@ plot(prediction);
 %title('developing accuracy');
 
 hold on
-stem(expected);
+plot(expected);
 %title('prediction accuracy');
 
 hold off
