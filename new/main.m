@@ -69,6 +69,9 @@ Y = out;                             % output
 Parameter1 = reshape(theta((1:L2*(L1+1)),:),[L2 L1+1]);                     % Generating weight matrices
 Parameter2 = reshape(theta(L2*(L1+1)+1:L2*(L1+1)+L3*(L2+1),:),[L3 L2+1]);
 
+array = zeros(10*TrainingDays, 1);
+array_accurate = zeros(10*TrainingDays, 1);
+
 for iteration =1:10
     output_mat = zeros(size(Y,1),1);         %Matrix for storing output
     Accum_par1 =zeros(L2,L1+1);              % Storing accumulated values after each batch is passed
@@ -94,6 +97,8 @@ for iteration =1:10
         
         Accum_par1 = Accum_par1 + e2(2:size(e2, 1))*A1';
         Accum_par2 = Accum_par2 + e3*A2';
+        array(iteration*TrainingDays + i) = output;
+        array_accurate(iteration*TrainingDays + i) = out(i);
         
     end
     
@@ -139,6 +144,16 @@ plot(prediction);
 
 hold on
 stem(expected);
+%title('prediction accuracy');
+
+hold off
+
+figure
+plot(array);
+%title('developing accuracy');
+
+hold on
+plot(array_accurate);
 %title('prediction accuracy');
 
 hold off
