@@ -5,6 +5,7 @@ clear all;
 load('input_sorted.mat');
 load('output_sorted.mat');     
 
+%% formating data
 dates = input(:,2);
 dates = unique(dates, 'rows');
 a = size(dates,1);
@@ -18,14 +19,18 @@ b = size(input(:,2), 1);
 for i=1:b
     breaker = input(i,2);
     in(input(i,2)-first+1, :) = input(i, 2:3);
+    in(input(i,2)-first+1, 1) = in(input(i,2)-first+1, 1) / 366;
+    in(input(i,2)-first+1, 2) = in(input(i,2)-first+1, 2) / 1000;
     out(input(i,2)-first+1) = out(input(i,2)-60) + output(i);
 end
 
+%% prediction ahead of specific days
 prediction_time = 7;
 input_x = [in out];
 out(1:prediction_time, :) = [];
 ex_y = out;
 
+%% formating input data
 for i=1:size(input_x,1)
     if input_x(i, 1) == 0
         input_x(i, 1) = 60+i;
@@ -34,7 +39,7 @@ for i=1:size(input_x,1)
     end
 end
 
-
+%% repeating data
 numP = 10;
 Data = zeros(size(input_x, 1) * numP, size(input_x, 2));
 Class =  zeros(size(ex_y, 1) * numP, 1);
@@ -47,6 +52,7 @@ for i = 1 : size(input_x, 1)
     count = count + numP;
 end
 
+%% trainging data
 TrainingDays = 250;
 T=TrainingDays*numP;
 size_x = size(Data,2);
@@ -57,6 +63,7 @@ X = input_x;
 
 %Setting Network structure parameters
 
+%% Neuralnet starting
 L1 = 3;
 L2=10;
 L3=1;
@@ -66,8 +73,8 @@ total_size= L2*(L1 +1 ) + L3* ( L2 + 1);     % Defining parameter vector size
 %total_size = L2*(L1+1) + L3*(L2+1) + (H_layers-1)*L2*(L2+1);
 theta = rand(total_size,1);             % Initialising random weights
 Y = out;                             % output
-Parameter1 = reshape(theta((1:L2*(L1+1)),:),[L2 L1+1]);                     % Generating weight matrices
-Parameter2 = reshape(theta(L2*(L1+1)+1:L2*(L1+1)+L3*(L2+1),:),[L3 L2+1]);
+Parameter1 = rand(L2, L1 + 1);                     % Generating weight matrices
+Parameter2 = rand(L3, L2 + 1);
 
 array = zeros(10*TrainingDays, 1);
 array_accurate = zeros(10*TrainingDays, 1);
@@ -83,7 +90,7 @@ for iteration =1:10
         Lthree = zeros(L3,L3);
         
         % Forward Propogation ,A1,A2,A3 layers with bias
-        
+
         [A1,A2,A3,output] = forwardprop(Lone,Parameter1,Parameter2);  %Lone and Parameter1 and Parameter2 passed as arguement for
         
         output_mat(i,:) = output;      % output stored
@@ -92,11 +99,13 @@ for iteration =1:10
         
         %Backward Propogation
         
-        e3 = output - Y(i) ;
-        [e2] = backward_prop(e3,Parameter2,A2);
+        e3 = output - Y(i) 
+        [e2] = backward_prop(e3,Parameter2,A2)
         
         Accum_par1 = Accum_par1 + e2(2:size(e2, 1))*A1';
         Accum_par2 = Accum_par2 + e3*A2';
+        
+        
         array(iteration*TrainingDays + i) = output;
         array_accurate(iteration*TrainingDays + i) = out(i);
         
