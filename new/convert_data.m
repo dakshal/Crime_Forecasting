@@ -91,6 +91,7 @@ end
 
 n = max(CrimeDate);
 A = zeros(n_y*n_x, n(2));
+a = zeros(n_y*n_x, 1);
 
 for k = 1:length(tCrime)
     if CrimeArea(k,2) == 0
@@ -101,6 +102,7 @@ for k = 1:length(tCrime)
 
     j = CrimeDate(k,2);
     A(i,j) = A(i,j) + 1;
+    a(k,1) = i;
 end
 
 Crime = [CrimeType' CrimeDate CrimeArea];

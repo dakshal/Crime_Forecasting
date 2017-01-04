@@ -1,73 +1,49 @@
+%% NIJ Crime Forecasting Challenge
+% Training a Neural Network
+% 
+% Contributors : Dakshal Shah, Nicholas Kumia
+% Last Modified : 01.04.2017
 
-clc;
-clear all;
+clc; clear all;
 
-load('input_sorted.mat');
-load('output_sorted.mat');     
+load('test.mat');    
 
-%% formating data
-dates = input(:,2);
+%% Normalizing Data
+%  A          ->  The # of CRIMES that occur per DAYd per ARE
+%  test_data  ->  The specs of each crime that happened in 2012
+
+in = test_data;
+dates = [in(:,2) in(:,5)];
 dates = unique(dates, 'rows');
-a = size(dates,1);
-data = [];
-first = dates(1);
-last = dates(a);
-in = zeros(last-first+1, 2);
-out = zeros(last-first+1, 1);
-b = size(input(:,2), 1);
+in = dates;
 
-for i=1:b
-    breaker = input(i,2);
-    in(input(i,2)-first+1, :) = input(i, 2:3);
-    in(input(i,2)-first+1, 1) = in(input(i,2)-first+1, 1) / 366;
-    in(input(i,2)-first+1, 2) = in(input(i,2)-first+1, 2) / 1000;
-    out(input(i,2)-first+1) = out(input(i,2)-60) + output(i);
+for i = 1:length(dates)
+    out(i) = A(dates(i,2), dates(i,1));
 end
 
-%% prediction ahead of specific days
+in(:,1) = in(:,1) / 366;
+in(:,2) = in(:,2) / max(in(:,2));
+in = [in out'];
+
+%% Set Prediction Paramters
+%  prediction_time -> the day ahead of the current day to predict for
+
 prediction_time = 7;
-input_x = [in out];
-out(1:prediction_time, :) = [];
-ex_y = out;
-
-%% formating input data
-for i=1:size(input_x,1)
-    if input_x(i, 1) == 0
-        input_x(i, 1) = 60+i;
-        input_x(i, 2) = 100;
-        input_x(i, 3) = 0;
-    end
-end
-
-%% repeating data
-numP = 10;
-Data = zeros(size(input_x, 1) * numP, size(input_x, 2));
-Class =  zeros(size(ex_y, 1) * numP, 1);
-count  = 0;
-for i = 1 : size(input_x, 1)
-    Data(count+1 : count + numP, :) = ones(numP, 1) * input_x(i, :);
-    if i < size(ex_y, 1)
-        Class(count+1 : count + numP, :) = ex_y(i) + 1;
-    end
-    count = count + numP;
-end
+input_x = in;
+%out(1:prediction_time, :) = [];
 
 %% trainging data
 TrainingDays = 250;
-T=TrainingDays*numP;
-size_x = size(Data,2);
-
 
 X = input_x;
-%X = [input_x(:,1) input_x(:,3)];
-
-%Setting Network structure parameters
 
 %% Neuralnet starting
+
+% Number of nodes for each layer
 L1 = 3;
-L2=10;
-L3=1;
-H_layers = 1;     % L1,L2,L3 : size of input,hidden and output layer without bias
+L2 = 10;
+L3 = 1;
+H_layers = 1;
 
 total_size= L2*(L1 +1 ) + L3* ( L2 + 1);     % Defining parameter vector size
 %total_size = L2*(L1+1) + L3*(L2+1) + (H_layers-1)*L2*(L2+1);
