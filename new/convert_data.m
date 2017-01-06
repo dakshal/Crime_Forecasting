@@ -4,10 +4,11 @@
 % Contributors : Nicholas Kumia
 % Last Modified : 11.25.2016
 
-clear all;
+% clear all;
+clear CrimeType CrimeDate CrimeArea
 
 %% Import Data
-new_file = 'NIJ2012_MAR01_DEC31.xlsx';
+new_file = 'Crimes_Mar_2012_Jul_2016.xlsx';
 
 x = collect(new_file);
 
@@ -94,9 +95,10 @@ A = zeros(n_y*n_x, n(2));
 a = zeros(n_y*n_x, 1);
 
 for k = 1:length(tCrime)
+    k
     if CrimeArea(k,2) == 0
         i = CrimeArea(k,1);
-    else CrimeArea(k,2) == n_y
+    else
         i = (CrimeArea(k,2)-1)*n_x + CrimeArea(k,1);
     end
 
