@@ -2,17 +2,17 @@
 % Training a Neural Network
 % 
 % Contributors : Dakshal Shah, Nicholas Kumia
-% Last Modified : 01.04.2017
+% Last Modified : 01.07.2017
 
 clc; clear all;
-
-load('test.mat');    
+load('train.mat');    
 
 %% Normalizing Data
-%  A          ->  The # of CRIMES that occur per DAYd per ARE
-%  test_data  ->  The specs of each crime that happened in 2012
+%  A           ->  The # of CRIMES that occur per DAYd per ARE
+%  train_data  ->  The specs of each crime that happened between Mar 2012
+%                  and Jul 2016
 
-in = test_data;
+in = train_data;
 dates = [in(:,2) in(:,5)];
 dates = unique(dates, 'rows');
 in = dates;
@@ -32,123 +32,120 @@ prediction_time = 7;
 input_x = in;
 %out(1:prediction_time, :) = [];
 
-%% trainging data
-TrainingDays = 127000;
+%% Define the amount of Training Data
+TrainingCrimes = 500000;
 
 X = input_x;
 
-%% Neuralnet starting
+%% Starting the Neuralnet
 
-% Number of nodes for each layer
+% Number of nodes for each layer, L1 .. L2 .. L3
+% Number of hidden layers, H_layers
 L1 = 3;
 L2 = 10;
 L3 = 1;
 H_layers = 1;
 
-total_size= L2*(L1 +1 ) + L3* ( L2 + 1);     % Defining parameter vector size
-%total_size = L2*(L1+1) + L3*(L2+1) + (H_layers-1)*L2*(L2+1);
-theta = rand(total_size,1);             % Initialising random weights
-Y = out;                             % output
-Parameter1 = rand(L2, L1 + 1);                     % Generating weight matrices
+% Total # of Nodes
+total_size = L2*( L1 + 1 ) + L3*( L2 + 1 );
+
+% Initialize Random weights, theta
+% Define actual output, Y
+theta = rand(total_size,1);
+Y = out;
+
+% Connections between Layer A and B, ParamA
+Parameter1 = rand(L2, L1 + 1);
 Parameter2 = rand(L3, L2 + 1);
 
-array = zeros(10*TrainingDays, 1);
-array_accurate = zeros(10*TrainingDays, 1);
+% Repeat Data for better accuracy
+% The model is trained with each crime r-fold
+r = 10;
+array = zeros(r*TrainingCrimes, 1);
+array_accurate = zeros(r*TrainingCrimes, 1);
 
-for iteration =1:10
-    iteration
-    output_mat = zeros(size(Y,1),1);         %Matrix for storing output
-    Accum_par1 =zeros(L2,L1+1);              % Storing accumulated values after each batch is passed
-    Accum_par2 = zeros(L3,L2+1);
+for iteration = 1:100
+    % Prediction Output, output_mat
+    % Accumulated weights for the i-th layer after each iteration,
+    % accum_parami
+    output_mat = zeros(size(Y,1),1);
+    accum_param1 =zeros(L2,L1+1);
+    accum_param2 = zeros(L3,L2+1);
     
-    for i =1:TrainingDays              % 8 samples in training batch
-        i
-        Lone = X(i,(1:3))';       % Lone, Ltwo, Lthree layers without bias
-        Ltwo = zeros(L2,1) ;
-        Lthree = zeros(L3,L3);
+    for i = 1:TrainingCrimes
+        fprintf('Currently running\nIteration %d, Crime %d\n', iteration, i)
+        % Layers without bias
+        L11 = X(i,(1:3))';
+%         L21 = zeros(L2,1) ;
+%         L31 = zeros(L3,L3);
         
-        % Forward Propogation ,A1,A2,A3 layers with bias
-
-        [A1,A2,A3,output] = forwardprop(Lone,Parameter1,Parameter2);  %Lone and Parameter1 and Parameter2 passed as arguement for
+        % Forward Propagation considering layers with bias, A1 .. A2 .. A3
+        [A1,A2,A3,output] = forwardprop(L11,Parameter1,Parameter2);
+        output_mat(i,:) = output;
+        L21 = A2(2:size(A2,1),:);
+        L31 = A3;
         
-        output_mat(i,:) = output;      % output stored
-        Ltwo = A2(2:size(A2,1),:);
-        Lthree = A3;
-        
-        %Backward Propogation
-        
+        % Backward Propagation
         e3 = output - Y(i) ;
-        [e2] = backward_prop(e3,Parameter2,A2);
+        e2 = backward_prop(e3,Parameter2,A2);
         
-        Accum_par1 = Accum_par1 + e2(2:size(e2, 1))*A1';
-        Accum_par2 = Accum_par2 + e3*A2';
+        accum_param1 = accum_param1 + e2(2:size(e2, 1))*A1';
+        accum_param2 = accum_param2 + e3*A2';
         
-        
-        array(iteration*TrainingDays + i) = output;
-        array_accurate(iteration*TrainingDays + i) = out(i);
-        
-%         subplot(1,2,1);
-%         plot(array);
-%         drawnow;
-%         subplot(1,2,2);
-%         plot(array_accurate);
-%         drawnow;
+        array(iteration*TrainingCrimes + i) = output;
+        array_accurate(iteration*TrainingCrimes + i) = out(i);
         
     end
     
-    % calculating D1 & D2 which are partial dervatives w.r.t cost function
+    % Calculate D1 and D2, which are partial dervatives w.r.t cost function
+    D1 = accum_param1*(1/size(X,1));   
+    D2 = accum_param2*(1/size(X,1));
     
-    D1 = Accum_par1*(1/size(X,1));   
-    D2 = Accum_par2*(1/size(X,1));
-    
-   
-       step_size = 0.5;                       %setting step_size    
+    step_size = 0.5;
        
-       %Updating parameters
+    % Update Parameters
     Parameter1 = Parameter1 - step_size.*D1;
     Parameter2 = Parameter2 - step_size.*D2;
     
-    %Cost Function (cross-entropy)
+    % Cost Function (cross-entropy)
 %     cost(iteration,:) = (-1/size(X,1)*(log(output_mat)'*Y + log(1-output_mat)'*(1-Y)));
 
 end
 
-prediction = zeros(size(input_x, 1) - TrainingDays, 1);
-expected = out(:, TrainingDays+1:size(out, 2));
+prediction = zeros(size(input_x, 1) - TrainingCrimes, 1);
+expected = out(:, TrainingCrimes+1:size(out, 2));
 
-for i =TrainingDays+1:size(input_x, 1)            % 8 samples in training batch
-        Lone = X(i,(1:3))';       % Lone, Ltwo, Lthree layers without bias
-        Ltwo = zeros(L2,1) ;
-        Lthree = zeros(L3,L3);
+for i = TrainingCrimes+1:size(input_x, 1)
+        L11 = X(i,(1:3))';
+%         L21 = zeros(L2,1) ;
+%         L31 = zeros(L3,L3);
         
-        % Forward Propogation ,A1,A2,A3 layers with bias
+        % Forward Propagation considering layers with bias, A1 .. A2 .. A3
+        [A1,A2,A3,output] = forwardprop(L11,Parameter1,Parameter2);
+        output_mat(i,:) = output;
+        L21 = A2(2:size(A2,1),:);
+        L31 = A3;
         
-        [A1,A2,A3,output] = forwardprop(Lone,Parameter1,Parameter2);  %Lone and Parameter1 and Parameter2 passed as arguement for
-        
-        output_mat(i,:) = output;      % output stored
-        Ltwo = A2(2:size(A2,1),:);
-        Lthree = A3;
-        
-        prediction(i-TrainingDays) = output;
+        prediction(i-TrainingCrimes) = output;
         
 end
     
-figure
+subplot(1,2,1)
 plot(prediction);
-%title('developing accuracy');
+title('Training Model - Predicted Crimes');
 
-hold on
+subplot(1,2,2)
 plot(expected);
-%title('prediction accuracy');
+title('Training Model - Actual Crimes');
 
-hold off
-
-figure
-plot(array);
-%title('developing accuracy');
-
-hold on
-plot(array_accurate);
-%title('prediction accuracy');
-
-hold off
+% hold off
+% 
+% figure
+% plot(array);
+% %title('developing accuracy');
+% 
+% hold on
+% plot(array_accurate);
+% %title('prediction accuracy');
+% 
+% hold off
