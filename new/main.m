@@ -4,8 +4,7 @@
 % Contributors : Dakshal Shah, Nicholas Kumia
 % Last Modified : 01.04.2017
 
-clc; clear all;
-
+clc;
 load('test.mat');    
 
 %% Normalizing Data
@@ -30,7 +29,7 @@ in = [in out'];
 
 prediction_time = 7;
 input_x = in;
-%out(1:prediction_time, :) = [];
+out(:, 1:prediction_time) = [];
 
 %% trainging data
 TrainingDays = 127000;
@@ -42,28 +41,30 @@ X = input_x;
 % Number of nodes for each layer
 L1 = 3;
 L2 = 10;
-L3 = 1;
+L3 = prediction_time;
 H_layers = 1;
 
 total_size= L2*(L1 +1 ) + L3* ( L2 + 1);     % Defining parameter vector size
 %total_size = L2*(L1+1) + L3*(L2+1) + (H_layers-1)*L2*(L2+1);
 theta = rand(total_size,1);             % Initialising random weights
 Y = out;                             % output
-Parameter1 = rand(L2, L1 + 1);                     % Generating weight matrices
-Parameter2 = rand(L3, L2 + 1);
+%Parameter1 = rand(L2, L1 + 1);                     % Generating weight matrices
+%Parameter2 = rand(L3, L2 + 1);
 
-array = zeros(10*TrainingDays, 1);
-array_accurate = zeros(10*TrainingDays, 1);
+array = zeros(10*TrainingDays, L3);
+array_accurate = zeros(10*TrainingDays, L3);
 
-for iteration =1:10
+
+%% training part
+for iteration =1:30
     iteration
-    output_mat = zeros(size(Y,1),1);         %Matrix for storing output
+    output_mat = zeros(size(Y,1),L3);         %Matrix for storing output
     Accum_par1 =zeros(L2,L1+1);              % Storing accumulated values after each batch is passed
     Accum_par2 = zeros(L3,L2+1);
     
     for i =1:TrainingDays              % 8 samples in training batch
         i
-        Lone = X(i,(1:3))';       % Lone, Ltwo, Lthree layers without bias
+        Lone = X(i,:)';       % Lone, Ltwo, Lthree layers without bias
         Ltwo = zeros(L2,1) ;
         Lthree = zeros(L3,L3);
         
@@ -84,8 +85,8 @@ for iteration =1:10
         Accum_par2 = Accum_par2 + e3*A2';
         
         
-        array(iteration*TrainingDays + i) = output;
-        array_accurate(iteration*TrainingDays + i) = out(i);
+        array(iteration*TrainingDays + i, :) = output;
+        array_accurate(iteration*TrainingDays + i, :) = out(i);
         
 %         subplot(1,2,1);
 %         plot(array);
@@ -102,7 +103,7 @@ for iteration =1:10
     D2 = Accum_par2*(1/size(X,1));
     
    
-       step_size = 0.5;                       %setting step_size    
+       step_size = 0.1;                       %setting step_size    
        
        %Updating parameters
     Parameter1 = Parameter1 - step_size.*D1;
@@ -113,10 +114,15 @@ for iteration =1:10
 
 end
 
-prediction = zeros(size(input_x, 1) - TrainingDays, 1);
+prediction = zeros(size(input_x, 1) - TrainingDays, L3);
 expected = out(:, TrainingDays+1:size(out, 2));
 
+
+%% prediction part
 for i =TrainingDays+1:size(input_x, 1)            % 8 samples in training batch
+    Accum_par1 =zeros(L2,L1+1);              % Storing accumulated values after each batch is passed
+    Accum_par2 = zeros(L3,L2+1);
+
         Lone = X(i,(1:3))';       % Lone, Ltwo, Lthree layers without bias
         Ltwo = zeros(L2,1) ;
         Lthree = zeros(L3,L3);
@@ -129,12 +135,13 @@ for i =TrainingDays+1:size(input_x, 1)            % 8 samples in training batch
         Ltwo = A2(2:size(A2,1),:);
         Lthree = A3;
         
-        prediction(i-TrainingDays) = output;
+        pos = (i-TrainingDays);
+        prediction(pos, :) =  -41.75841*output;
         
 end
     
 figure
-plot(prediction);
+plot(mean(prediction, 2));
 %title('developing accuracy');
 
 hold on
@@ -152,3 +159,12 @@ plot(array_accurate);
 %title('prediction accuracy');
 
 hold off
+
+figure
+subplot(1, 2, 1)
+title('actual')
+plot(expected);
+
+subplot(1, 2, 2)
+title('prediction')
+plot(mean(prediction,2));
