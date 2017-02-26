@@ -1,9 +1,9 @@
 
-%% Loading Data
+% Loading Data
 clc;
 clear all;
-load('sorted_tData.mat');    
-% load('formated_data.mat');    
+% load('sorted_tData.mat');    
+load('new_formatted.mat');    
 
 
 %% Normalizing Data
@@ -82,9 +82,9 @@ e = zeros(366, max_region);
 for i=1:max_region
     X = in2016(:, :, i);
     Y = out2016(:, i);
-    B = ((X'*X)\(X'*(Y(1:length(X(:,1))))));
+    B = (pinv((X'*X))*(X'*Y));
     b(:, i) = B;
-    E = Y(1:length(X(:,1))) - X*B;
+    E = Y - X*B;
     e(:, i) = E;
 end
 
@@ -95,16 +95,16 @@ end
 
 % e = Y(1:length(X(:,1))) - X*b;
 
-training1(1, :) = (X*b)';
+% training1(1, :) = (X*b)';
 
-estm1 = Y;
-
-figure
-hold on
-title('initial');
-plot(abs(ceil(training1')));
-plot(estm1);
-hold off
+% estm1 = Y;
+% 
+% figure
+% hold on
+% title('initial');
+% plot(abs(ceil(training1')));
+% plot(estm1);
+% hold off
 
 
 
@@ -117,39 +117,39 @@ for j=1:100
     for i=1:max_region
         X = in2016(:, :, i);
         Y = out2016(:, i);
-        b(:, i) = b(:, i) - (n/length(X(:,1)))*((X'*X)\(X'*(Y(1:length(X(:,1))) - e(:, i))));
+        b(:, i) = b(:, i) - (n/length(X(:,1)))*(pinv(X'*X)*(X'*(Y(1:length(X(:,1))) - e(:, i))));
         E = Y(1:length(X(:,1))) - X*b(:, i);
         e(:, i) = E;
     end
     for i=1:max_region
         X = in2012(:, :, i);
         Y = out2012(:, i);
-        b(:, i) = b(:, i) - (n/length(X(:,1)))*((X'*X)\(X'*(Y(1:length(X(:,1))) - e(:, i))));
+        b(:, i) = b(:, i) - (n/length(X(:,1)))*(pinv(X'*X)*(X'*(Y(1:length(X(:,1))) - e(:, i))));
         E = Y(1:length(X(:,1))) - X*b(:, i);
-        e(:, i) = E;
+        e(:, i) = (e(:, i) + E)./2;
     end
     for i=1:max_region
         X = in2015(:, :, i);
         Y = out2015(:, i);
-        b(:, i) = b(:, i) - (n/length(X(:,1)))*((X'*X)\(X'*(Y(1:length(X(:,1))) - e(:, i))));
+        b(:, i) = b(:, i) - (n/length(X(:,1)))*(pinv(X'*X)*(X'*(Y(1:length(X(:,1))) - e(:, i))));
         E = Y(1:length(X(:,1))) - X*b(:, i);
-        e(:, i) = E;
+        e(:, i) = (e(:, i)*2 + E)./3;
     end
     for i=1:max_region
         X = in2013(:, :, i);
         Y = out2013(:, i);
-        b(:, i) = b(:, i) - (n/length(X(:,1)))*((X'*X)\(X'*(Y(1:length(X(:,1))) - e(:, i))));
+        b(:, i) = b(:, i) - (n/length(X(:,1)))*(pinv(X'*X)*(X'*(Y(1:length(X(:,1))) - e(:, i))));
         E = Y(1:length(X(:,1))) - X*b(:, i);
-        e(:, i) = E;
+        e(:, i) = (e(:, i)*3 + E)./4;
     end    
     for i=1:max_region
         X = in2014(:, :, i);
         Y = out2014(:, i);
-        b(:, i) = b(:, i) - (n/length(X(:,1)))*((X'*X)\(X'*(Y(1:length(X(:,1))) - e(:, i))));
+        b(:, i) = b(:, i) - (n/length(X(:,1)))*(pinv(X'*X)*(X'*(Y(1:length(X(:,1))) - e(:, i))));
         E = Y(1:length(X(:,1))) - X*b(:, i);
-        e(:, i) = E;
+        e(:, i) = (e(:, i)*4 + E)./5;
     end
-
+    j
 %     b = b - (n/length(X(:,1)))*((X'*X)\(X'*(Y(1:length(X(:,1))) - e)));
 %     e = Y(1:length(X(:,1))) - X*b;
 %     coeff = coeff - n*((X'*X)\(X'*(Y(1:length(X(:,1))) - X*white_coeff)));
@@ -186,21 +186,22 @@ end
 
 
 
-prediction = zeros(70 + prediction_time, max_region);
+prediction = zeros(max_region, 70 + prediction_time );
 out_size = length(out2016(:, 1));
-prediction(1:prediction_time, :) = out2016(366-prediction_time:366, :);
+prediction(:, 1:prediction_time+1) = out2016(366-prediction_time:366, :)';
 
 match = 0;
 
-for i =prediction_time+1:length(prediction(:, 1))            % 8 samples in training batch
+for i =prediction_time+1:length(prediction(1, :))            % 8 samples in training batch
 %    wn = prediction(i-1) - prediction(i-prediction_time-1:i-2);%*(white_coeff));
     one = ones(max_region, 1);
-    const = [prediction(i-prediction_time:i-1, :)' one];
+    const = [prediction(:, i-prediction_time:i-1) one];
 %     const = prediction(i-prediction_time:i);
     
     %w = sqrt(0.5*p)*(random(i)+i*random(i));
-    prediction(i, :) = const*b + e(i, :);
+    prediction(:, i) = diag(const*b + e(i, :));
     
+    i
 %    prediction(i) = (prediction(i-prediction_time:i-1)*coeff) + sum(wn);
 end
 

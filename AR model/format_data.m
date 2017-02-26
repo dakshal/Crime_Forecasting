@@ -1,7 +1,7 @@
 function [in2012, in2013, in2014, in2015, in2016, in2017, out2012, out2013, out2014, out2015, out2016, out2017] = format_data(prediction_time, total_region, Y2012, Y2013, Y2014, Y2015, Y2016)
 
-A = zeros(366 - prediction_time, prediction_time);
-B = ones(366 - prediction_time,1);
+A = zeros(366, prediction_time);
+B = ones(366,1);
 A = [A B];
 A = A + 0.01;
 
@@ -16,7 +16,7 @@ in2017 = A;
 max_region = length(total_region(:, 1));
 
 B = zeros(366, max_region);
-B = B + 0.01;
+B = B + 0.0001;
 
 out2012 = B;
 out2013 = B;
