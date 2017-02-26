@@ -2,7 +2,7 @@
 %% Loading Data
 clc;
 clear all;
-load('sorted_tData.mat');    
+load('formated_data.mat');    
 
 
 %% Normalizing Data
@@ -24,233 +24,18 @@ load('sorted_tData.mat');
 
 %% initializing a 3D matrix for storing regional crimes/date
 
-total_region = unique(Crime(:, 4));
+% total_region = unique(Crime(:, 4));
 prediction_time = 7;
 
-% [in2012, in2013, in2014, in2015, in2016, in2017] = format_data(prediction_time, total_region, Y2012, Y2013, Y2014, Y2015, Y2016);
+[in2012, in2013, in2014, in2015, in2016, in2017, out2012 = B;
+out2013
+out2014
+out2015
+out2016 = B;
+out2017
+] = format_data(prediction_time, total_region, Y2012, Y2013, Y2014, Y2015, Y2016);
 
 %%
-A = zeros(366 - prediction_time, prediction_time);
-B = ones(366 - prediction_time,1);
-A = [A B];
-A = A + 0.01;
-
-
-in2012 = A;
-in2013 = A;
-in2014 = A;
-in2015 = A;
-in2016 = A;
-in2017 = A;
-
-max_region = length(total_region(:, 1));
-
-B = zeros(366, max_region);
-B = B + 0.01;
-
-out2012 = B;
-out2013 = B;
-out2014 = B;
-out2015 = B;
-out2016 = B;
-out2017 = B;
-
-
-for i=1:max_region
-    in2012(:, :, i) = A;
-    in2013(:, :, i) = A;
-    in2014(:, :, i) = A;
-    in2015(:, :, i) = A;
-    in2016(:, :, i) = A;
-    in2017(:, :, i) = A;
-end
-
-i = 1;
-
-while i <= length(Y2012(:, 1))
-    j = 1;
-    while j <= max_region
-        if total_region(j) == Y2012(i, 2)
-            break
-        end
-        j = j+1;
-    end
-    
-    k = i;
-    
-%     temp = zeros(366 - prediction_time, prediction_time);    
-    
-    while Y2012(k, 2) == Y2012(i, 2)
-        for l=1:prediction_time
-            if Y2012(k, 1) + l <= 366
-                in2012(Y2012(k, 1) + l, l, j) = Y2012(k, 3);
-            else 
-                in2013(Y2012(k, 1) + l - 366, l, j) = Y2012(k, 3);
-            end
-        end
-        out2012(Y2012(k, 1), j) = Y2012(k, 3);
-        k = k + 1;
-        if k > length(Y2012(:, 1))
-            break;
-        end
-    end
-    
-    i = k;
-    
-end
-i
-i = 1;
-
-while i <= length(Y2013(:, 1))
-    j = 1;
-    while j <= max_region
-        if total_region(j) == Y2013(i, 2)
-            break
-        end
-        j = j+1;
-    end
-    
-    k = i;
-    
-%     temp = zeros(366 - prediction_time, prediction_time);    
-    
-    while Y2013(k, 2) == Y2013(i, 2)
-        for l=1:prediction_time
-            if Y2013(k, 1) + l < 60
-                in2013(Y2013(k, 1) + l, l, j) = Y2013(k, 3);
-            else
-                if Y2013(k, 1) + 2 <= 366
-                    in2013(Y2013(k, 1) + 2, l, j) = Y2013(k, 3);
-                else 
-                    in2014(Y2013(k, 1) + 2 - 366, l, j) = Y2013(k, 3);
-                end
-            end
-        end
-        out2013(Y2013(k, 1), j) = Y2013(k, 3);
-        k = k + 1;
-        if k > length(Y2013(:, 1))
-            break;
-        end
-    end
-    
-    i = k;
-    
-end
-
-i
-i = 1;
-
-while i <= length(Y2014(:, 1))
-    j = 1;
-    while j <= max_region
-        if total_region(j) == Y2014(i, 2)
-            break
-        end
-        j = j+1;
-    end
-    
-    k = i;
-    
-%     temp = zeros(366 - prediction_time, prediction_time);    
-    
-    while Y2014(k, 2) == Y2014(i, 2)
-        for l=1:prediction_time
-            if Y2014(k, 1) + l < 60
-                in2014(Y2014(k, 1) + l, l, j) = Y2014(k, 3);
-            else
-                if Y2014(k, 1) + 2 <= 366
-                    in2014(Y2014(k, 1) + 2, l, j) = Y2014(k, 3);
-                else 
-                    in2015(Y2014(k, 1) + 2 - 366, l, j) = Y2014(k, 3);
-                end
-            end
-        end
-        out2014(Y2014(k, 1), j) = Y2014(k, 3);
-        k = k + 1;
-        if k > length(Y2014(:, 1))
-            break;
-        end
-    end
-    
-    i = k;
-    
-end
-
-i
-i = 1;
-
-while i <= length(Y2015(:, 1))
-    j = 1;
-    while j <= max_region
-        if total_region(j) == Y2015(i, 2)
-            break
-        end
-        j = j+1;
-    end
-    
-    k = i;
-    
-%     temp = zeros(366 - prediction_time, prediction_time);    
-    
-    while Y2015(k, 2) == Y2015(i, 2)
-        for l=1:prediction_time
-            if Y2015(k, 1) + l < 60
-                in2015(Y2015(k, 1) + l, l, j) = Y2015(k, 3);
-            else
-                if Y2015(k, 1) + 2 <= 366
-                    in2015(Y2015(k, 1) + 2, l, j) = Y2015(k, 3);
-                else 
-                    in2016(Y2015(k, 1) + 2 - 366, l, j) = Y2015(k, 3);
-                end
-            end
-        end
-        out2015(Y2015(k, 1), j) = Y2015(k, 3);
-        k = k + 1;
-        if k > length(Y2015(:, 1))
-            break;
-        end
-    end
-    
-    i = k;
-    
-end
-
-i
-i = 1;
-
-while i <= length(Y2016(:, 1))
-    j = 1;
-    while j <= max_region
-        if total_region(j) == Y2016(i, 2)
-            break
-        end
-        j = j+1;
-    end
-    
-    k = i;
-    
-%     temp = zeros(366 - prediction_time, prediction_time);    
-    
-    while Y2016(k, 2) == Y2016(i, 2)
-        for l=1:prediction_time
-            if Y2016(k, 1) + l <= 366
-                in2016(Y2016(k, 1) + l, l, j) = Y2016(k, 3);
-            else 
-                in2017(Y2016(k, 1) + l - 366, l, j) = Y2016(k, 3);
-            end
-        end
-        out2016(Y2016(k, 1), j) = Y2016(k, 3);        
-        k = k + 1;
-        if k > length(Y2016(:, 1))
-            break;
-        end
-    end
-    
-    i = k;
-    
-end
-
-i
 
 
 %% training days
@@ -270,6 +55,8 @@ n = 0.05;
 %n = 1000;	% number of points
 
 iteration = 10;
+
+max_region = length(total_region(:, 1));
 
 % training1 = zeros(iteration, TrainingDays-prediction_time);
 % estm1 = zeros(TrainingDays, 1);
@@ -410,39 +197,36 @@ prediction(1:prediction_time, :) = out2016(366-prediction_time:366, :);
 
 match = 0;
 
-for i =prediction_time+1:size(prediction, 2)            % 8 samples in training batch
+for i =prediction_time+1:length(prediction(:, 1))            % 8 samples in training batch
 %    wn = prediction(i-1) - prediction(i-prediction_time-1:i-2);%*(white_coeff));
-    const = [1 prediction(i-prediction_time:i-1)'];
+    one = ones(max_region, 1);
+    const = [prediction(i-prediction_time:i-1, :)' one];
 %     const = prediction(i-prediction_time:i);
     
     %w = sqrt(0.5*p)*(random(i)+i*random(i));
-    prediction(i) = const*b() + e(i);
+    prediction(i, :) = const*b + e(i, :);
     
-    if floor(prediction(i)) == out(TrainingDays+i-prediction_time)
-        match = match+1;
-    end
-
 %    prediction(i) = (prediction(i-prediction_time:i-1)*coeff) + sum(wn);
 end
 
-figure
-hold on
-title('During the training')
-plot(abs(ceil(training1')));
-plot(estm1);
-hold off
+% figure
+% hold on
+% title('During the training')
+% plot(abs(ceil(training1')));
+% plot(estm1);
+% hold off
+% 
+% figure
+% hold on
+% plot(floor(prediction));
+% title('prediction');
+% plot(out(TrainingDays+1-prediction_time:size(input_x, 1)));
+% title('actual');
+% hold off
 
-figure
-hold on
-plot(floor(prediction));
-title('prediction');
-plot(out(TrainingDays+1-prediction_time:size(input_x, 1)));
-title('actual');
-hold off
-
-s = sum(floor(prediction));
-N = sum(out(TrainingDays+1:size(input_x, 1)));
-
-PAI = s/N
-
-match
+% s = sum(floor(prediction));
+% N = sum(out(TrainingDays+1:size(input_x, 1)));
+% 
+% PAI = s/N
+% 
+% match

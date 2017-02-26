@@ -3,6 +3,7 @@
 clc;
 clear all;
 load('sorted_tData.mat');    
+% load('formated_data.mat');    
 
 
 %% Normalizing Data
@@ -27,7 +28,7 @@ load('sorted_tData.mat');
 total_region = unique(Crime(:, 4));
 prediction_time = 7;
 
-% [in2012, in2013, in2014, in2015, in2016, in2017] = format_data(prediction_time, total_region, Y2012, Y2013, Y2014, Y2015, Y2016);
+[in2012, in2013, in2014, in2015, in2016, in2017, out2012, out2013, out2014, out2015, out2016, out2017] = format_data(prediction_time, total_region, Y2012, Y2013, Y2014, Y2015, Y2016);
 
 %%
 
@@ -49,6 +50,8 @@ n = 0.05;
 %n = 1000;	% number of points
 
 iteration = 10;
+
+max_region = length(total_region(:, 1));
 
 % training1 = zeros(iteration, TrainingDays-prediction_time);
 % estm1 = zeros(TrainingDays, 1);
