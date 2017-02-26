@@ -51,7 +51,7 @@ random = randn(length(in(:, 1)), 1);
 
 %n = 1000;	% number of points
 
-iteration = 100;
+iteration = 10;
 
 training1 = zeros(iteration, TrainingDays-prediction_time);
 estm1 = zeros(TrainingDays, 1);
@@ -65,18 +65,25 @@ X = zeros(TrainingDays-prediction_time, prediction_time+1);
 % G = zeros(TrainingDays-prediction_time, prediction_time+1);
 
 for i=prediction_time+1:TrainingDays
-%     X(i-prediction_time, :) = [1 out(i-prediction_time:i-1)];
-    X(i-prediction_time, :) = out(i-prediction_time:i);
+    X(i-prediction_time, :) = [1 out(i-prediction_time:i-1)];
+%     X(i-prediction_time, :) = out(i-prediction_time:i);
 %     G(i-prediction_time, :) = w(i-prediction_time:i);
 end
 
 Y = out';
 Y(1:prediction_time+2) = [];
 
-coeff = ((X'*X)\(X'*(Y(1:length(X(:,1)))-w(1:length(X(:,1))))));
-white_coeff = coeff;
+I = eye(213);
+H = (X)*((X'*X)\(X'));
 
-training1(1, :) = (X*coeff + G*coeff)';
+
+b = ((X'*X)\(X'*(Y(1:length(X(:,1))))));
+% b = (X'*(H*Y(1:length(X(:,1))) - Y(1:length(X(:,1)))));
+white_coeff = b;
+
+e = Y(1:length(X(:,1))) - X*b;
+
+training1(1, :) = (X*b)';
 
 estm1 = Y;
 
@@ -87,16 +94,18 @@ plot(abs(ceil(training1')));
 plot(estm1);
 hold off
 
-e = w(1:length(X(:,1)));
 
-for i=1:iteration
-    for j=1:prediction_time+1
-        white_coeff(j) = coeff(j).^i;
-    end
-    e = e - (Y(1:length(X(:,1))) - ceil(abs(X*coeff + X*white_coeff)));
-    coeff = coeff + n*((X'*X)\(X'*(Y(1:length(X(:,1))) - e)));
+
+for i=1:100
+%     for j=1:prediction_time+1
+%         white_coeff(j) = b(j).^i;
+%     end
+%     e = (Y(1:length(X(:,1))) - H*Y(1:length(X(:,1))));
+%     e = e - n*(Y(1:length(X(:,1))) - ceil(abs(X*b)));
+    b = b - (n/length(X(:,1)))*((X'*X)\(X'*(Y(1:length(X(:,1))) - e)));
+    e = Y(1:length(X(:,1))) - X*b;
 %     coeff = coeff - n*((X'*X)\(X'*(Y(1:length(X(:,1))) - X*white_coeff)));
-    training1(i, :) = (X*coeff + X*white_coeff)';
+    training1(i, :) = (X*b + e)';
 end
 
 % for j=1:10000
@@ -129,15 +138,22 @@ end
 
 
 
-prediction = zeros(1, size(input_x, 1)-TrainingDays+1-prediction_time);
-prediction(1:prediction_time) = out(TrainingDays+1:TrainingDays+prediction_time);
+prediction = zeros(1, size(input_x, 1)-TrainingDays+prediction_time);
+prediction(1:prediction_time) = out(TrainingDays+1-prediction_time:TrainingDays);
 
-for i =prediction_time+2:50            % 8 samples in training batch
+match = 0;
+
+for i =prediction_time+1:size(prediction, 2)            % 8 samples in training batch
 %    wn = prediction(i-1) - prediction(i-prediction_time-1:i-2);%*(white_coeff));
     const = [1 prediction(i-prediction_time:i-1)];
+%     const = prediction(i-prediction_time:i);
     
     %w = sqrt(0.5*p)*(random(i)+i*random(i));
-    prediction(i) = const*coeff + w(i);
+    prediction(i) = const*b + e(i);
+    
+    if floor(prediction(i)) == out(TrainingDays+i-prediction_time)
+        match = match+1;
+    end
 
 %    prediction(i) = (prediction(i-prediction_time:i-1)*coeff) + sum(wn);
 end
@@ -151,11 +167,15 @@ hold off
 
 figure
 hold on
-plot(abs(ceil(prediction)));
+plot(floor(prediction));
 title('prediction');
-
-
-plot(out(TrainingDays+1:size(input_x, 1)-prediction_time));
+plot(out(TrainingDays+1-prediction_time:size(input_x, 1)));
 title('actual');
 hold off
 
+s = sum(floor(prediction));
+N = sum(out(TrainingDays+1:size(input_x, 1)));
+
+PAI = s/N
+
+match
