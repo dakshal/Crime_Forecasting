@@ -206,6 +206,9 @@ for i =prediction_time+1:length(prediction(1, :))            % 8 samples in trai
 %    prediction(i) = (prediction(i-prediction_time:i-1)*coeff) + sum(wn);
 end
 
+create_actual_prediction
+
+PAI_calculation
 
 % figure
 % hold on

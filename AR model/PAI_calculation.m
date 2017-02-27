@@ -7,7 +7,7 @@ avg_p = 0;
 avg_a = 0;
 for j=1:max_region
     
-    for i=1:3*prediction_time
+    for i=prediction_time:5*prediction_time
         sum_predicted(j) = sum_predicted(j) + prediction(j, i);
         avg_p = avg_p + prediction(j, i);
         avg_a = avg_a + out2017(i, j);
