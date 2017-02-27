@@ -1,4 +1,4 @@
-function [in2012, in2013, in2014, in2015, in2016, in2017, out2012, out2013, out2014, out2015, out2016, out2017] = format_data(prediction_time, total_region, Y2012, Y2013, Y2014, Y2015, Y2016)
+function [in2012, in2013, in2014, in2015, in2016, in2017, out2012, out2013, out2014, out2015, out2016, out2017] = format_data(prediction_time, total_region, Y2012, Y2013, Y2014, Y2015, Y2016, crt)
 
 A = zeros(366, prediction_time);
 B = ones(366,1);
@@ -50,16 +50,20 @@ while i <= length(Y2012(:, 1))
     
 %     temp = zeros(366 - prediction_time, prediction_time);    
     
-    while Y2012(k, 2) == Y2012(i, 2)
-        for l=1:prediction_time
-            if Y2012(k, 1) + l <= 366
-                in2012(Y2012(k, 1) + l, l, j) = Y2012(k, 3);
-            else 
-                in2013(Y2012(k, 1) + l - 366, l, j) = Y2012(k, 3);
+    while Y2012(k, 2) == Y2012(i, 2)  
+        if Y2012(k, 4) == crt
+            for l=1:prediction_time
+                if Y2012(k, 1) + l <= 366
+                    in2012(Y2012(k, 1) + l, l, j) = Y2012(k, 3);
+                else 
+                    in2013(Y2012(k, 1) + l - 366, l, j) = Y2012(k, 3);
+                end
             end
+            out2012(Y2012(k, 1), j) = Y2012(k, 3);
+            k = k + 1;
+        else
+            k = k+1;
         end
-        out2012(Y2012(k, 1), j) = Y2012(k, 3);
-        k = k + 1;
         if k > length(Y2012(:, 1))
             break;
         end
@@ -85,19 +89,23 @@ while i <= length(Y2013(:, 1))
 %     temp = zeros(366 - prediction_time, prediction_time);    
     
     while Y2013(k, 2) == Y2013(i, 2)
-        for l=1:prediction_time
-            if Y2013(k, 1) + l < 60
-                in2013(Y2013(k, 1) + l, l, j) = Y2013(k, 3);
-            else
-                if Y2013(k, 1) + 2 <= 366
-                    in2013(Y2013(k, 1) + 2, l, j) = Y2013(k, 3);
-                else 
-                    in2014(Y2013(k, 1) + 2 - 366, l, j) = Y2013(k, 3);
+        if Y2013(k, 4) == crt
+            for l=1:prediction_time
+                if Y2013(k, 1) + l < 60
+                    in2013(Y2013(k, 1) + l, l, j) = Y2013(k, 3);
+                else
+                    if Y2013(k, 1) + 2 <= 366
+                        in2013(Y2013(k, 1) + 2, l, j) = Y2013(k, 3);
+                    else 
+                        in2014(Y2013(k, 1) + 2 - 366, l, j) = Y2013(k, 3);
+                    end
                 end
             end
+            out2013(Y2013(k, 1), j) = Y2013(k, 3);
+            k = k + 1;
+        else
+            k = k+1;
         end
-        out2013(Y2013(k, 1), j) = Y2013(k, 3);
-        k = k + 1;
         if k > length(Y2013(:, 1))
             break;
         end
@@ -124,19 +132,23 @@ while i <= length(Y2014(:, 1))
 %     temp = zeros(366 - prediction_time, prediction_time);    
     
     while Y2014(k, 2) == Y2014(i, 2)
-        for l=1:prediction_time
-            if Y2014(k, 1) + l < 60
-                in2014(Y2014(k, 1) + l, l, j) = Y2014(k, 3);
-            else
-                if Y2014(k, 1) + 2 <= 366
-                    in2014(Y2014(k, 1) + 2, l, j) = Y2014(k, 3);
-                else 
-                    in2015(Y2014(k, 1) + 2 - 366, l, j) = Y2014(k, 3);
+        if Y2014(k, 4) == crt
+            for l=1:prediction_time
+                if Y2014(k, 1) + l < 60
+                    in2014(Y2014(k, 1) + l, l, j) = Y2014(k, 3);
+                else
+                    if Y2014(k, 1) + 2 <= 366
+                        in2014(Y2014(k, 1) + 2, l, j) = Y2014(k, 3);
+                    else 
+                        in2015(Y2014(k, 1) + 2 - 366, l, j) = Y2014(k, 3);
+                    end
                 end
             end
+            out2014(Y2014(k, 1), j) = Y2014(k, 3);
+            k = k + 1;
+        else
+            k = k+1;
         end
-        out2014(Y2014(k, 1), j) = Y2014(k, 3);
-        k = k + 1;
         if k > length(Y2014(:, 1))
             break;
         end
@@ -163,19 +175,23 @@ while i <= length(Y2015(:, 1))
 %     temp = zeros(366 - prediction_time, prediction_time);    
     
     while Y2015(k, 2) == Y2015(i, 2)
-        for l=1:prediction_time
-            if Y2015(k, 1) + l < 60
-                in2015(Y2015(k, 1) + l, l, j) = Y2015(k, 3);
-            else
-                if Y2015(k, 1) + 2 <= 366
-                    in2015(Y2015(k, 1) + 2, l, j) = Y2015(k, 3);
-                else 
-                    in2016(Y2015(k, 1) + 2 - 366, l, j) = Y2015(k, 3);
+        if Y2015(k, 4) == crt
+            for l=1:prediction_time
+                if Y2015(k, 1) + l < 60
+                    in2015(Y2015(k, 1) + l, l, j) = Y2015(k, 3);
+                else
+                    if Y2015(k, 1) + 2 <= 366
+                        in2015(Y2015(k, 1) + 2, l, j) = Y2015(k, 3);
+                    else 
+                        in2016(Y2015(k, 1) + 2 - 366, l, j) = Y2015(k, 3);
+                    end
                 end
             end
+            out2015(Y2015(k, 1), j) = Y2015(k, 3);
+            k = k + 1;
+        else
+            k = k+1;
         end
-        out2015(Y2015(k, 1), j) = Y2015(k, 3);
-        k = k + 1;
         if k > length(Y2015(:, 1))
             break;
         end
@@ -202,15 +218,19 @@ while i <= length(Y2016(:, 1))
 %     temp = zeros(366 - prediction_time, prediction_time);    
     
     while Y2016(k, 2) == Y2016(i, 2)
-        for l=1:prediction_time
-            if Y2016(k, 1) + l <= 366
-                in2016(Y2016(k, 1) + l, l, j) = Y2016(k, 3);
-            else 
-                in2017(Y2016(k, 1) + l - 366, l, j) = Y2016(k, 3);
+        if Y2016(k, 4) == crt
+            for l=1:prediction_time
+                if Y2016(k, 1) + l <= 366
+                    in2016(Y2016(k, 1) + l, l, j) = Y2016(k, 3);
+                else 
+                    in2017(Y2016(k, 1) + l - 366, l, j) = Y2016(k, 3);
+                end
             end
+            out2016(Y2016(k, 1), j) = Y2016(k, 3);        
+            k = k + 1;
+        else
+            k = k+1;
         end
-        out2016(Y2016(k, 1), j) = Y2016(k, 3);        
-        k = k + 1;
         if k > length(Y2016(:, 1))
             break;
         end
