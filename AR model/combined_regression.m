@@ -3,7 +3,8 @@
 clc;
 clear all;
 % load('sorted_tData.mat');    
-load('new_formatted.mat');    
+% load('new_formatted.mat');    
+load('updated_coeff.mat');    
 
 
 %% Normalizing Data
@@ -26,7 +27,7 @@ load('new_formatted.mat');
 %% initializing a 3D matrix for storing regional crimes/date
 
 total_region = unique(Crime(:, 4));
-prediction_time = 7;
+prediction_time = 10;
 
 [in2012, in2013, in2014, in2015, in2016, in2017, out2012, out2013, out2014, out2015, out2016, out2017] = format_data(prediction_time, total_region, Y2012, Y2013, Y2014, Y2015, Y2016);
 
@@ -108,7 +109,7 @@ end
 
 
 
-for j=1:100
+for j=1:40
 %     for j=1:prediction_time+1
 %         white_coeff(j) = b(j).^i;
 %     end
@@ -186,9 +187,9 @@ end
 
 
 
-prediction = zeros(max_region, 70 + prediction_time );
+prediction = zeros(max_region, 60 + prediction_time );
 out_size = length(out2016(:, 1));
-prediction(:, 1:prediction_time+1) = out2016(366-prediction_time:366, :)';
+prediction(:, 1:prediction_time) = out2016(366-prediction_time+1:366, :)';
 
 match = 0;
 
@@ -204,6 +205,7 @@ for i =prediction_time+1:length(prediction(1, :))            % 8 samples in trai
     i
 %    prediction(i) = (prediction(i-prediction_time:i-1)*coeff) + sum(wn);
 end
+
 
 % figure
 % hold on
