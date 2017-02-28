@@ -75,7 +75,7 @@ n_y = ceil((y_max - y_min)/A_y);
 for i = 1:length(tX_coord)
     id_x = ceil((tX_coord(i) - x_min)/A_x);
     id_y = ceil((tY_coord(i) - y_min)/A_y);
-    
+        
 %     if id_x == 0
 %         id_x = 1;
 %     end

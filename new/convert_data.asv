@@ -70,12 +70,14 @@ A_y = 600;
 
 n_x = ceil((x_max - x_min)/A_x);
 n_y = ceil((y_max - y_min)/A_y);
+highest_x = -1;
+highest_y = -1;
 
 % Create Matrix of Area
 for i = 1:length(tX_coord)
     id_x = ceil((tX_coord(i) - x_min)/A_x);
     id_y = ceil((tY_coord(i) - y_min)/A_y);
-    
+        
 %     if id_x == 0
 %         id_x = 1;
 %     end
