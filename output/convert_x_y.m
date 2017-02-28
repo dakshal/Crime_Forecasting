@@ -1,10 +1,11 @@
 % load('crime_type_#1.mat');
 
-for n = 1:1:15
+% for n = 1:1:15
     n
     v = n;
-    z = sprintf('type%d.mat',n);
-    load(z);
+%     z = sprintf('type%d.mat',n);
+%     load(z);
+    load(type1.mat);
 
     random = randn(length(output(:, 1)), 1)*360000;
 
@@ -24,5 +25,5 @@ for n = 1:1:15
     end
     
     save(z, 'output');
-    
-end
+        
+% end
