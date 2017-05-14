@@ -1,11 +1,11 @@
 % load('crime_type_#1.mat');
 
 % for n = 1:1:15
-    n
-    v = n;
+%     n
+%     v = n;
 %     z = sprintf('type%d.mat',n);
 %     load(z);
-    load(type1.mat);
+    load('type1.mat');
 
     random = randn(length(output(:, 1)), 1)*360000;
 
@@ -19,11 +19,11 @@
         x = x*600 + rand_x;
         y = y*600 + rand_y;
 
-        output(i, 6) = {sprintf('%d', x)};
-        output(i, 7) = {sprintf('%d', y)};
+        output(i, 6) = {sprintf('%f', x)};
+        output(i, 7) = {sprintf('%f', y)};
 
     end
     
-    save(z, 'output');
+%     save(z, 'output');
         
 % end

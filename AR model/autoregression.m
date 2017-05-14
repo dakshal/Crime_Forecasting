@@ -1,25 +1,25 @@
 
 %% Loading Data
-clc;
-clear all;
-load('region18807.mat');    
-load('test.mat');    
+%clc;
+%clear all;
+%load('region18807.mat');    
+%load('test.mat');    
 
 
 %% Normalizing Data
 %  A          ->  The # of CRIMES that occur per DAYd per ARE
 %  test_data  ->  The specs of each crime that happened in 2012
 
-in = region18807;
-dates = [in(:,2) in(:,5)];
-dates = unique(dates, 'rows');
-in = dates;
-out = zeros(1, length(in(:, 1)));
+%in = region18807;
+%dates = [in(:,2) in(:,5)];
+%dates = unique(dates, 'rows');
+%in = dates;
+%out = zeros(1, length(in(:, 1)));
 
-for i = 1:length(dates)
-    out(i) = out(i) + (A(dates(i,2), dates(i,1)));
+%for i = 1:length(dates)
+ %   out(i) = out(i) + (A(dates(i,2), dates(i,1)));
 %    out(i) = (A(dates(i,2), dates(i,1))-4)/8;
-end
+%end
 
 %in(:,1) = (in(:,1)-366/2) / 366;
 %in(:,2) = (in(:,2)-max(in(:,2))/2) / max(in(:,2));
@@ -28,15 +28,19 @@ end
 %% Set Prediction Paramters
 %  prediction_time -> the day ahead of the current day to predict for
 
+dailyCrime = sum(crime,1);
+dailyCrime = sum(dailyCrime, 2);
+dailyCrime = sum(dailyCrime,3);
 prediction_time = 7;
-input_x = in;
-%out(:, 1:prediction_time) = [];
+input_x = reshape(dailyCrime, 1, 306);
+out = dailyCrime;
+out(:, 1:prediction_time) = [];
 
 mu = rand(1,1);
 
 
 %% training days
-TrainingDays = 220;
+TrainingDays = 250;
 
 X = input_x;
 n = 0.05;
@@ -45,9 +49,9 @@ n = 0.05;
 
 t = (0:0.1:TrainingDays)';
 x = sawtooth(t);
-w = awgn(x,length(out(:, 1)),'measured');
+% w = awgn(x,length(out(:, 1)),'measured');
 
-random = randn(length(in(:, 1)), 1);
+random = randn(306, 1);
 
 %n = 1000;	% number of points
 
@@ -90,23 +94,23 @@ estm1 = Y;
 figure
 hold on
 title('initial');
-plot(abs(ceil(training1')));
-plot(estm1);
+plot(abs(ceil(training1')), 'r-');
+plot(estm1, 'b--');
 hold off
 
 
-
-for i=1:100
-%     for j=1:prediction_time+1
-%         white_coeff(j) = b(j).^i;
-%     end
-%     e = (Y(1:length(X(:,1))) - H*Y(1:length(X(:,1))));
-%     e = e - n*(Y(1:length(X(:,1))) - ceil(abs(X*b)));
-    b = b - (n/length(X(:,1)))*((X'*X)\(X'*(Y(1:length(X(:,1))) - e)));
-    e = Y(1:length(X(:,1))) - X*b;
-%     coeff = coeff - n*((X'*X)\(X'*(Y(1:length(X(:,1))) - X*white_coeff)));
-    training1(i, :) = (X*b + e)';
-end
+% 
+% for i=1:20
+% %     for j=1:prediction_time+1
+% %         white_coeff(j) = b(j).^i;
+% %     end
+% %     e = (Y(1:length(X(:,1))) - H*Y(1:length(X(:,1))));
+% %     e = e - n*(Y(1:length(X(:,1))) - ceil(abs(X*b)));
+%     b = b - (n/length(X(:,1)))*((X'*X)\(X'*(Y(1:length(X(:,1))) - e)));
+%     e = Y(1:length(X(:,1))) - X*b;
+% %     coeff = coeff - n*((X'*X)\(X'*(Y(1:length(X(:,1))) - X*white_coeff)));
+%     training1(i, :) = (X*b + e)';
+% end
 
 % for j=1:10000
 %     for i=prediction_time+1:TrainingDays
