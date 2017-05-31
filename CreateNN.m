@@ -1,6 +1,3 @@
-% Netzaufbau mit Gewichten und Verzögerungen erstellen und wichtige ngen
-% erstellen
-
 function [net]=CreateNN(nn,dIn,dIntern,dOut)
 
 % dIn: Zelle für jeden Eingang mit Vektor der Verzögerungen

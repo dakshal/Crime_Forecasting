@@ -1,9 +1,3 @@
-%% NIJ Crime Forecasting Challenge
-% Training a Neural Network
-% 
-% Contributors : Dakshal Shah, Nicholas Kumia
-% Last Modified : 01.04.2017
-
 clc;
 load('test.mat');    
 
@@ -29,7 +23,7 @@ in = [in out'];
 
 prediction_time = 7;
 input_x = in;
-out(:, 1:prediction_time) = [];
+out(:, 1:prediction_time+1) = [];
 
 %% trainging data
 TrainingDays = 127000;
@@ -40,22 +34,22 @@ X = input_x;
 
 % Number of nodes for each layer
 L1 = 3;
-L2 = 10;
+L2 = 40;
 L3 = prediction_time;
 H_layers = 1;
 
 total_size= L2*(L1 +1 ) + L3* ( L2 + 1);     % Defining parameter vector size
-%total_size = L2*(L1+1) + L3*(L2+1) + (H_layers-1)*L2*(L2+1);
 theta = rand(total_size,1);             % Initialising random weights
-Y = out;                             % output
-%Parameter1 = rand(L2, L1 + 1);                     % Generating weight matrices
-%Parameter2 = rand(L3, L2 + 1);
+Y = out(1:TrainingDays);                             % output
+Parameter1 = rand(L2, L1 + 1);                     % Generating weight matrices
+Parameter2 = rand(L3, L2 + 1);
+
 
 array = zeros(10*TrainingDays, L3);
 array_accurate = zeros(10*TrainingDays, L3);
 
 
-%% training part
+%% input data to NN to train it
 for iteration =1:30
     iteration
     output_mat = zeros(size(Y,1),L3);         %Matrix for storing output
@@ -63,7 +57,7 @@ for iteration =1:30
     Accum_par2 = zeros(L3,L2+1);
     
     for i =1:TrainingDays              % 8 samples in training batch
-        i
+%         i
         Lone = X(i,:)';       % Lone, Ltwo, Lthree layers without bias
         Ltwo = zeros(L2,1) ;
         Lthree = zeros(L3,L3);
@@ -87,14 +81,7 @@ for iteration =1:30
         
         array(iteration*TrainingDays + i, :) = output;
         array_accurate(iteration*TrainingDays + i, :) = out(i);
-        
-%         subplot(1,2,1);
-%         plot(array);
-%         drawnow;
-%         subplot(1,2,2);
-%         plot(array_accurate);
-%         drawnow;
-        
+
     end
     
     % calculating D1 & D2 which are partial dervatives w.r.t cost function
@@ -108,9 +95,9 @@ for iteration =1:30
        %Updating parameters
     Parameter1 = Parameter1 - step_size.*D1;
     Parameter2 = Parameter2 - step_size.*D2;
-    
-    %Cost Function (cross-entropy)
-%     cost(iteration,:) = (-1/size(X,1)*(log(output_mat)'*Y + log(1-output_mat)'*(1-Y)));
+
+	%Cost Function (cross-entropy)
+    cost(iteration,:) = (-1/size(X,1)*(log(output_mat)'*Y' + log(1-output_mat)'*(1-Y)'));
 
 end
 
@@ -118,7 +105,7 @@ prediction = zeros(size(input_x, 1) - TrainingDays, L3);
 expected = out(:, TrainingDays+1:size(out, 2));
 
 
-%% prediction part
+%% create prediction from trained data model
 for i =TrainingDays+1:size(input_x, 1)            % 8 samples in training batch
     Accum_par1 =zeros(L2,L1+1);              % Storing accumulated values after each batch is passed
     Accum_par2 = zeros(L3,L2+1);
@@ -140,6 +127,7 @@ for i =TrainingDays+1:size(input_x, 1)            % 8 samples in training batch
         
 end
     
+%% plot both analytical and actual prediction data sets
 figure
 plot(mean(prediction, 2));
 %title('developing accuracy');
@@ -163,8 +151,8 @@ hold off
 figure
 subplot(1, 2, 1)
 title('actual')
-plot(expected);
+plot(abs(expected));
 
 subplot(1, 2, 2)
 title('prediction')
-plot(mean(prediction,2));
+plot(abs(mean(prediction,2)));

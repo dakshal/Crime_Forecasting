@@ -5,6 +5,8 @@ clc
 % sim_data_gen2
 % close all
 
+
+%% load input and output data
 load('input_sorted.mat');
 load('output_sorted.mat');     
 
@@ -18,6 +20,7 @@ in = zeros(last-first+1, 2);
 out = zeros(last-first+1, 1);
 b = size(input(:,2), 1);
 
+%% restructure input and output
 for i=1:b
     breaker = input(i,2);
     in(input(i,2)-first+1, :) = input(i, 2:3);
@@ -30,6 +33,8 @@ out(1:prediction_time, :) = [];
 ex_y = out;
 
 numP = 10;
+
+%% Repeat data to create better analysis
 Data = zeros(size(input_x, 1) * numP, size(input_x, 2));
 Class =  zeros(size(ex_y, 1) * numP, 1);
 count  = 0;
@@ -41,6 +46,7 @@ for i = 1 : size(input_x, 1)
     count = count + numP;
 end
 
+%% create prediction model
 TrainingDays = 250;
 T=TrainingDays*numP;
 size_x = size(Data,2);
@@ -53,36 +59,13 @@ nn_lr = 0.01;
 
 predict = [];
 
-%for x = 1 : T
-%         if (t == T)
-%             t
-%         end
- %   nn_input = Data(x, :);
-%    nn_hidden = (nn_input * W1)';
-%    nn_hidden = sig(nn_hidden);
-
-%    nn_output = (nn_hidden' * W2)';
-%    nn_output = sig(nn_output);
-
-    % update output weights
-%    sigma2 = nn_output .* (1 - nn_output) .* (Class(x, :)' - nn_output);
-%    delta2 = nn_lr * nn_hidden * sigma2';
-
-    % update hidden weights
-%    sigma1 = nn_hidden .* (1 - nn_hidden) .* (W2 * sigma2);
-%    delta1 = nn_lr * nn_input' * sigma1';
-
-%    W2 = W2 + delta2;
-%    W1 = W1 + delta1;
-
-%    predict(i) = ((Class(i) - nn_output).^2)/2;
-%end
 
 nn = [3 10 1];
 dIn=[0];
 dIntern=[ ];
 dOut=[ ];
 
+%% input data to NN to train it
 net = CreateNN(nn, [dIn, dIntern, dOut]);
 k_max=100;
 E_stop=1e-10;
@@ -90,36 +73,21 @@ E_stop=1e-10;
 result_after = train_LM(Data(1:T, :)', Class(1:T)', net, k_max, E_stop);
 
 
-
+%% create prediction from trained data model
 prediction = NNOut(input_x(TrainingDays+1, size(input_x,1)-prediction_time-1)', net, [Data(1:T)', Class(1:T)']); %zeros(size(input_x,1)-prediction_time - TrainingDays,1);
 actual = zeros(size(input_x,1)-prediction_time - TrainingDays,1);
 i = 1;
 
 for x = TrainingDays+1 : size(input_x,1)-prediction_time-1
-%    nn_input = input_x(x, :);
-%    nn_hidden = (nn_input * W1)';
-%    nn_hidden = sig(nn_hidden);
-
-%    nn_output = (nn_hidden' * W2)';
-%    nn_output = sig(nn_output);
-
-%    prediction(i) = nn_output*10;
     actual(i) =  out(x)*10;
     i = i + 1;
-
 end
 
+%% plot both analytical and actual prediction data sets
 figure
 plot(prediction);
-%title('developing accuracy');
 
 hold on
 stem(actual);
-%title('prediction accuracy');
 
 hold off
-
-function data_out = sig(data_in)
-    data_out = 1 ./ (1 + exp(-data_in));
-end
-
